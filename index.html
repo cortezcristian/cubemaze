@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>FaceMaze 2D</title>
+ 
+    <script src="js/jquery-1.6.4.min.js"></script>
+    <script src="js/Box2dWeb-2.1.a.3.js"></script>
+    <script src="js/headtrackr.js"></script>
+    <script src="js/mazes.js"></script>
+<!--
+    <script src="js/code.js"></script>
+-->
+    <style>
+    *
+    {
+        margin:0;
+        padding:0;
+    }
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Helvetica, Arial, sans-serif;
+        font-size: 15px;
+    }
+    ul {
+        float: left;    
+        list-style: none;
+    }
+    hr {
+        clear: both;    
+    }
+    .winner {
+        display: none;
+    }
+    .panel {
+        float: left;
+        min-width: 640px;
+    }
+    .panel-g {
+        float: left;
+        border-style: solid;
+        border-width: 1px;
+        border-color: #d9d9d9;
+        padding: 1.25em;
+        background: #f2f2f2;
+    }
+   #experiment {
+      -webkit-perspective: 800;
+      -webkit-perspective-origin: 50% 50%;
+
+      -moz-perspective: 800;
+      -moz-perspective-origin: 50% 50%;
+    }
+
+    #cube {
+      position: relative;
+      margin: 100px auto 0;
+      height: 400px;
+      width: 400px;
+      -webkit-transition: -webkit-transform 0.1s linear;
+      -webkit-transform-style: preserve-3d;
+
+      -moz-transition: -moz-transform 0.1s linear;
+      -moz-transform-style: preserve-3d;
+    }
+
+    .face {
+      position: absolute;
+      height: 400px;
+      width: 400px;
+      /*padding: 20px;*/
+      background-color: rgba(50, 50, 50, 0.7);
+      line-height: 1em;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 3px;
+      font-size: 300px;
+      text-align: center;
+    }
+
+    #cube .one  {
+      -webkit-transform: rotateX(90deg) translateZ(200px);
+      -moz-transform: rotateX(90deg) translateZ(200px);
+    }
+
+    #cube .two {
+      -webkit-transform: translateZ(200px);
+      -moz-transform: translateZ(200px);
+    }
+
+    #cube .three {
+      -webkit-transform: rotateY(90deg) translateZ(200px);
+      -moz-transform: rotateY(90deg) translateZ(200px);
+    }
+
+    #cube .four {
+      -webkit-transform: rotateY(180deg) translateZ(200px);
+      -moz-transform: rotateY(180deg) translateZ(200px);
+    }
+
+    #cube .five {
+      -webkit-transform: rotateY(-90deg) translateZ(200px);
+      -moz-transform: rotateY(-90deg) translateZ(200px);
+    }
+
+    #cube .six {
+      -webkit-transform: rotateX(-90deg) rotate(180deg) translateZ(200px);
+      -moz-transform: rotateX(-90deg) rotate(180deg) translateZ(200px);
+    }
+
+    canvas.darker {opacity: 0.8; }
+    canvas.lighter {opacity: 0.7; }
+    .p{background: #060E47;
+opacity: 0.4;}
+    </style>
+</head>
+ 
+<body>
+
+<div id="experiment">
+    <div id="cube">
+        <div class="face one">
+            1
+<!--
+            <canvas height="400" id="canvas" class="darker" style="background-color:#333333;float:left;" width="400"></canvas>
+-->
+        </div>
+        <div class="face two">
+            2
+<!--
+            <canvas height="400" id="canvas-2" class="darker" style="background-color:#333333;float:left;" width="400"></canvas>
+-->
+        </div>
+        <div class="face three p">
+            3
+        </div>
+        <div class="face four">
+            4
+        </div>
+        <div class="face five">
+            5
+        </div>
+        <div class="face six">
+            6
+        </div>
+    </div>
+</div>
+<div class="currentface">
+</div>
+<div class="currentxyz">
+</div>
+<!--
+    <ul>
+        <li>Metrics</li>
+        <li>X: <span class="x-head">0</span></li>
+        <li>Y: <span class="y-head">0</span></li>
+        <li class="winner">
+            <h2>You Win!</h2>
+            <img src="./img/win1.jpg" style="max-height:400px;" />
+        </li>
+    </ul>
+    <hr/>
+     <div class="panel">
+        <canvas id="inputCanvas" width="320" height="240"></canvas><video id="inputVideo" autoplay="autoplay" loop="loop"></video>
+    </div>
+     <div class="panel-g">
+        <p>
+           Facemaze is an HMTL5 Game where you need to control the character with face movements.
+        </p>
+        <p>You'll need to give permissions to your browser to control the camera, when prompted just click Allow</p>
+        <br />
+        <a href="https://twitter.com/cortezcristian" class="twitter-follow-button" data-show-count="false">Follow @cortezcristian</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+        <br />
+        <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fcortezcristian.com%2Ffacemaze2d%2F&amp;width&amp;layout=standard&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=80&amp;appId=1401871786728555" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:80px;" allowTransparency="true"></iframe>
+        </div>
+-->
+    <!-- GA -->
+    <script type="text/javascript"> 
+ 
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-23058107-1']);
+      _gaq.push(['_trackPageview']);
+ 
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    <!-- GA -->
+  <script>
+        
+
+var props = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' '),
+    prop,
+    el = document.createElement('div');
+var xAngle = -90, yAngle = 0, zAngle = 0;
+$(document).ready(function(){
+    document.getElementById('cube').style[prop] = "rotateX("+xAngle+"deg) rotateY("+yAngle+"deg) rotateZ("+zAngle+"deg)";
+});
+
+for(var i = 0, l = props.length; i < l; i++) {
+    if(typeof el.style[props[i]] !== "undefined") {
+        prop = props[i];
+        break;
+    }
+}
+
+function currentFace(){
+    var face;
+    $('.face').each(function(i,v){
+        var h = $(v)[0].getBoundingClientRect();
+        if(parseInt(h['height'])>450&&parseInt(h['width'])>450){
+            console.log(h['height'], h['width']);
+            face = $(v);    
+        }
+    })
+    if(face){
+    $('.currentface').text(face.attr('class'));
+    }else {
+        console.log("was undef");
+        $('.face').each(function(i,v){
+            var h = $(v)[0].getBoundingClientRect();
+                console.log(h['height'], h['width']);
+        })
+    }
+    $('.currentxyz').text("(x,y,z) => ("+xAngle+","+yAngle+","+zAngle+")");
+    return face;
+}
+
+$('body').keydown(function(evt) {
+    var x=0,y=0,z=0;
+    var cf = currentFace(), cname="";
+    if(cf){
+        cname = $(cf).attr("class").split(" ")[1];
+        console.log(cname);
+    }
+    console.log(evt.keyCode);
+    switch(evt.keyCode) {
+        case 65: // A
+            if(cname=="two"||cname=="four"){
+            yAngle += 90;
+            y=1;
+            }else{
+            zAngle += 90;
+            z=1;
+            }
+            break;
+        case 68: // D
+            if(cname=="two"||cname=="four"){
+            yAngle -= 90;
+            y=-1;
+            }else{
+            zAngle -= 90;
+            z=-1;
+            }
+            break;
+        case 37: // left <-
+            if(cname=="two"||cname=="four"){
+            zAngle += 90;
+            z=1;
+            }else{
+            yAngle += 90;
+            y=1;
+            }
+            break;
+
+        case 87: // W
+        //case 38: // up
+            xAngle -= 90;
+            x=-1;
+            break;
+
+        case 39: // right ->
+            if(cname=="two"||cname=="four"){
+            zAngle -= 90;
+            z=-1;
+            }else{
+            yAngle -= 90;
+            y=-1;
+            }
+            break;
+
+        case 83: // S
+        //case 40: // down
+            xAngle += 90;
+            x=1;
+            break;
+    };
+    document.getElementById('cube').style[prop] = "rotateX("+xAngle+"deg) rotateY("+yAngle+"deg) rotateZ("+zAngle+"deg)";
+    console.log( "rotateX("+xAngle+"deg) rotateY("+yAngle+"deg) rotateZ("+zAngle+"deg)");
+    $('.currentxyz').text("(x,y,z) => ("+xAngle+","+yAngle+","+zAngle+")");
+    //document.getElementById('cube').style[prop] = "rotate3d("+x+", "+y+", "+z+", "+xAngle+"deg)";
+    //console.log("rotate3d("+x+", "+y+", "+z+", "+xAngle+"deg)");
+    /*
+    setTimeout(function(){
+        console.log("laa");
+        currentFace();
+    }, 510);
+    */
+});    </script>
+</body>
+ 
+</html>
